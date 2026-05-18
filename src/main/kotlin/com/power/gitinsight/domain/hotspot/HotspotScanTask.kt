@@ -1,5 +1,6 @@
 package com.power.gitinsight.domain.hotspot
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -7,6 +8,7 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.power.gitinsight.infra.git.GitAdapter
 import com.power.gitinsight.infra.storage.BlameStorage
+import com.power.gitinsight.ui.gutter.HotspotGutterInstaller
 import git4idea.repo.GitRepositoryManager
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
@@ -77,6 +79,14 @@ internal class HotspotScanTask(
 
         indicator.fraction = 1.0
         thisLogger().info("HotspotScanTask: done. total rows=$totalRows across ${repos.size} repo(s)")
+
+        if (totalRows > 0) {
+            // Repaint gutters on already-open editors; FileEditorManagerListener only fires on
+            // the first open, so without this the strip would only appear after a tab cycle.
+            ApplicationManager.getApplication().invokeLater {
+                HotspotGutterInstaller.refreshAllOpen(proj)
+            }
+        }
     }
 
     private fun sha1Hex16(raw: String): String {

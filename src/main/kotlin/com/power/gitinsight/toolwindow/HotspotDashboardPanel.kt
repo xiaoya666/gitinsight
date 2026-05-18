@@ -19,12 +19,15 @@ import java.awt.event.MouseEvent
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.awt.Component
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JScrollPane
+import javax.swing.JTable
 import javax.swing.RowSorter
 import javax.swing.SortOrder
 import javax.swing.table.AbstractTableModel
+import javax.swing.table.DefaultTableCellRenderer
 
 /**
  * team : gitInsight.
@@ -41,13 +44,31 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
         autoCreateRowSorter = true
         rowHeight = 22
         setShowGrid(false)
+        autoResizeMode = JTable.AUTO_RESIZE_LAST_COLUMN
     }
 
     init {
+        configureColumns()
         add(buildToolbar(), BorderLayout.NORTH)
         add(JScrollPane(table), BorderLayout.CENTER)
         wireDoubleClickToOpen()
         refresh()
+    }
+
+    private fun configureColumns() {
+        val cm = table.columnModel
+        cm.getColumn(0).apply {
+            preferredWidth = 320
+            minWidth = 180
+            cellRenderer = FilePathRenderer()
+        }
+        listOf(1, 2, 3).forEach { i ->
+            cm.getColumn(i).apply {
+                preferredWidth = 64
+                maxWidth = 90
+            }
+        }
+        cm.getColumn(4).preferredWidth = 130
     }
 
     private fun buildToolbar(): JComponent {
@@ -89,6 +110,22 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
                 FileEditorManager.getInstance(project).openFile(target, true)
             }
         })
+    }
+
+    /** Shows the full file path as a tooltip so truncated cells stay readable. */
+    private class FilePathRenderer : DefaultTableCellRenderer() {
+        override fun getTableCellRendererComponent(
+            table: JTable,
+            value: Any?,
+            isSelected: Boolean,
+            hasFocus: Boolean,
+            row: Int,
+            column: Int
+        ): Component {
+            val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
+            toolTipText = value?.toString()
+            return c
+        }
     }
 
     private class HotspotTableModel : AbstractTableModel() {
