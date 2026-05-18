@@ -1,5 +1,6 @@
 package com.power.gitinsight.ui.gutter
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
@@ -17,6 +18,8 @@ import com.power.gitinsight.domain.hotspot.HotspotService
  * Class Name: HotspotGutterInstaller
  * Description: Attaches a Hotspot color strip to editor gutters. Listens for file-open events for the live path,
  *              and exposes a refresh hook so HotspotScanTask can repaint already-open editors after a rescan.
+ *              git4idea's getRepositoryForFile() is background-thread-only, so DB reads are pushed off the EDT
+ *              and the UI mutation hops back to the EDT via invokeLater.
  *
  * @author: power
  * on Date: 2026/05/18 Time: 16:07
@@ -33,16 +36,41 @@ internal class HotspotGutterInstaller(private val project: Project) : FileEditor
 
         /** Attach (or replace) the gutter strip for [file]'s editors using the current cached score. */
         fun installFor(project: Project, fem: FileEditorManager, file: VirtualFile) {
-            val score = project.service<HotspotService>().getHotspot(file)?.hotspotScore ?: return
-            fem.getEditors(file).filterIsInstance<TextEditor>().forEach { textEditor ->
-                attachStrip(textEditor, score)
+            val app = ApplicationManager.getApplication()
+            app.executeOnPooledThread {
+                if (project.isDisposed) return@executeOnPooledThread
+                val score = runCatching { project.service<HotspotService>().getHotspot(file)?.hotspotScore }.getOrNull()
+                    ?: return@executeOnPooledThread
+                app.invokeLater {
+                    if (project.isDisposed) return@invokeLater
+                    fem.getEditors(file).filterIsInstance<TextEditor>().forEach { textEditor ->
+                        attachStrip(textEditor, score)
+                    }
+                }
             }
         }
 
         /** Repaint every open editor — call after a scan commits so already-open files pick up fresh scores. */
         fun refreshAllOpen(project: Project) {
+            val app = ApplicationManager.getApplication()
             val fem = FileEditorManager.getInstance(project)
-            fem.openFiles.forEach { file -> installFor(project, fem, file) }
+            val files = fem.openFiles.toList()  // snapshot before going async
+            app.executeOnPooledThread {
+                if (project.isDisposed) return@executeOnPooledThread
+                val service = project.service<HotspotService>()
+                val scores: Map<VirtualFile, Double> = files.mapNotNull { f ->
+                    runCatching { service.getHotspot(f)?.hotspotScore }.getOrNull()?.let { f to it }
+                }.toMap()
+                if (scores.isEmpty()) return@executeOnPooledThread
+                app.invokeLater {
+                    if (project.isDisposed) return@invokeLater
+                    scores.forEach { (file, score) ->
+                        fem.getEditors(file).filterIsInstance<TextEditor>().forEach { textEditor ->
+                            attachStrip(textEditor, score)
+                        }
+                    }
+                }
+            }
         }
 
         private fun attachStrip(textEditor: TextEditor, score: Double) {
