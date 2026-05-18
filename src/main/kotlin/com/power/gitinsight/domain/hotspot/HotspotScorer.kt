@@ -67,7 +67,7 @@ internal object HotspotScorer {
         return exp(-ageDays / 30.0) * 10.0
     }
 
-    /** Soft normalization: tanh(raw / 30) * 100. Stays in [0, 100), saturates smoothly. */
+    /** Soft normalization: tanh(raw / 30) * 100. Stays in [0, 100], saturates smoothly (tanh hits 1.0 in IEEE doubles for raw >> 30). */
     internal fun normalize(raw: Double): Double {
         if (raw <= 0.0) return 0.0
         return tanh(raw / 30.0) * 100.0

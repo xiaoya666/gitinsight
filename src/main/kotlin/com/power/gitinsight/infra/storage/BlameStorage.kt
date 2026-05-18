@@ -27,7 +27,7 @@ internal class BlameStorage(private val project: Project) : Disposable {
     }
 
     val blameQueries get() = database.blameQueries
-    val hotspotQueries get() = database.fileHotspotQueries
+    val hotspotQueries get() = database.hotspotQueries
 
     private fun openDriver(): JdbcSqliteDriver {
         // IDE's PluginClassLoader doesn't expose JDBC drivers via ServiceLoader to DriverManager;
