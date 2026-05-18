@@ -1,0 +1,51 @@
+-- GitInsight blame line-level cache.
+-- One row per (repo, file, head commit, line). HEAD changes produce a new commit_id and a new set of rows;
+-- old rows are kept for history and pruned by created_at via deleteOlderThan.
+
+CREATE TABLE blame_line (
+  repo_id        TEXT NOT NULL,
+  file_path      TEXT NOT NULL,
+  commit_id      TEXT NOT NULL,
+  line_number    INTEGER NOT NULL,
+  line_commit_id TEXT NOT NULL,
+  author         TEXT NOT NULL,
+  author_email   TEXT,
+  timestamp      INTEGER NOT NULL,
+  summary        TEXT NOT NULL,
+  created_at     INTEGER NOT NULL,
+  PRIMARY KEY (repo_id, file_path, commit_id, line_number)
+);
+
+CREATE INDEX blame_line_by_author ON blame_line(repo_id, author);
+CREATE INDEX blame_line_by_created ON blame_line(created_at);
+
+upsertLine:
+INSERT INTO blame_line(repo_id, file_path, commit_id, line_number, line_commit_id, author, author_email, timestamp, summary, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(repo_id, file_path, commit_id, line_number) DO UPDATE SET
+  line_commit_id = excluded.line_commit_id,
+  author         = excluded.author,
+  author_email   = excluded.author_email,
+  timestamp      = excluded.timestamp,
+  summary        = excluded.summary,
+  created_at     = excluded.created_at;
+
+selectByCommit:
+SELECT line_number, line_commit_id, author, author_email, timestamp, summary
+FROM blame_line
+WHERE repo_id = ? AND file_path = ? AND commit_id = ?
+ORDER BY line_number ASC;
+
+countByCommit:
+SELECT COUNT(*) FROM blame_line
+WHERE repo_id = ? AND file_path = ? AND commit_id = ?;
+
+deleteOlderThan:
+DELETE FROM blame_line WHERE created_at < ?;
+
+selectFileHistoryAuthors:
+SELECT author, COUNT(DISTINCT line_commit_id) AS commits
+FROM blame_line
+WHERE repo_id = ? AND file_path = ?
+GROUP BY author
+ORDER BY commits DESC;

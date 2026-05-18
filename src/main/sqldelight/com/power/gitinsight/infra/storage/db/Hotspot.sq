@@ -1,0 +1,46 @@
+-- GitInsight per-file hotspot summary. Produced by Sprint 2 T8 history scan.
+-- One row per (repo, file). Scan is full-replace within the configured time window (default 1 year).
+
+CREATE TABLE file_hotspot (
+  repo_id        TEXT NOT NULL,
+  file_path      TEXT NOT NULL,
+  modify_count   INTEGER NOT NULL DEFAULT 0,
+  rollback_count INTEGER NOT NULL DEFAULT 0,
+  author_count   INTEGER NOT NULL DEFAULT 0,
+  last_modified  INTEGER NOT NULL,
+  hotspot_score  REAL NOT NULL DEFAULT 0,
+  updated_at     INTEGER NOT NULL,
+  PRIMARY KEY (repo_id, file_path)
+);
+
+CREATE INDEX file_hotspot_by_score ON file_hotspot(repo_id, hotspot_score DESC);
+CREATE INDEX file_hotspot_by_updated ON file_hotspot(updated_at);
+
+upsertFileHotspot:
+INSERT INTO file_hotspot(repo_id, file_path, modify_count, rollback_count, author_count, last_modified, hotspot_score, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(repo_id, file_path) DO UPDATE SET
+  modify_count   = excluded.modify_count,
+  rollback_count = excluded.rollback_count,
+  author_count   = excluded.author_count,
+  last_modified  = excluded.last_modified,
+  hotspot_score  = excluded.hotspot_score,
+  updated_at     = excluded.updated_at;
+
+selectFileHotspot:
+SELECT modify_count, rollback_count, author_count, last_modified, hotspot_score
+FROM file_hotspot
+WHERE repo_id = ? AND file_path = ?;
+
+selectTopHotspots:
+SELECT file_path, hotspot_score, modify_count, rollback_count, author_count, last_modified
+FROM file_hotspot
+WHERE repo_id = ?
+ORDER BY hotspot_score DESC
+LIMIT ?;
+
+countHotspots:
+SELECT COUNT(*) FROM file_hotspot WHERE repo_id = ?;
+
+deleteOldHotspotEntries:
+DELETE FROM file_hotspot WHERE updated_at < ?;

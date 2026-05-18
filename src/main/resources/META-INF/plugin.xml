@@ -1,0 +1,92 @@
+<idea-plugin>
+    <id>com.power.gitinsight</id>
+    <name>GitInsight</name>
+    <vendor email="support@gitinsight.dev" url="https://github.com/power/gitinsight">Power</vendor>
+
+    <description><![CDATA[
+        <h2>GitInsight — Git change-risk dashboard for IntelliJ IDEs</h2>
+        <p>Not just <code>git blame</code>, but <code>git insight</code>:</p>
+        <ul>
+            <li><b>Enhanced Blame</b> — hover a line to see author, modify frequency, and incident links.</li>
+            <li><b>Hotspot Heatmap</b> — gutter colors mark high-risk files (frequent modify / rollback / conflicts).</li>
+            <li><b>Commit Risk Score</b> — get a risk evaluation before you commit, with rule-driven explanations.</li>
+            <li><b>AI Commit / AI Review</b> — optional AI assistance (BYO key or built-in fallback).</li>
+        </ul>
+        <p>Free core (Apache-2.0 open source). Pro features available.</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>0.1.0</h3>
+        <ul>
+            <li>Initial scaffold.</li>
+        </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>Git4Idea</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity
+                implementation="com.power.gitinsight.GitInsightStartupActivity"/>
+
+        <toolWindow
+                id="GitInsight"
+                anchor="right"
+                factoryClass="com.power.gitinsight.toolwindow.GitInsightToolWindowFactory"/>
+
+        <notificationGroup
+                id="GitInsight Notifications"
+                displayType="BALLOON"/>
+
+        <applicationService
+                serviceInterface="com.power.gitinsight.infra.git.GitAdapter"
+                serviceImplementation="com.power.gitinsight.infra.git.Git4IdeaAdapter"/>
+
+        <projectService
+                serviceImplementation="com.power.gitinsight.infra.git.GitChangeListener"/>
+
+        <projectService
+                serviceImplementation="com.power.gitinsight.infra.storage.BlameStorage"/>
+
+        <projectService
+                serviceImplementation="com.power.gitinsight.domain.blame.BlameService"/>
+
+        <projectService
+                serviceImplementation="com.power.gitinsight.domain.hotspot.HotspotService"/>
+
+        <codeInsight.lineMarkerProvider
+                language="JAVA"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="kotlin"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="TEXT"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="XML"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="JavaScript"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="TypeScript"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="Python"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="Groovy"
+                implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
+    </extensions>
+
+    <actions>
+        <action
+                id="GitInsight.HelloAction"
+                class="com.power.gitinsight.action.HelloAction"
+                text="GitInsight: Hello"
+                description="Sanity check that the GitInsight plugin is loaded.">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>

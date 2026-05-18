@@ -1,0 +1,55 @@
+name: Plugin Verifier
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 18 * * 0'  # Every Monday 02:00 Asia/Shanghai (18:00 UTC Sunday)
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify across IDE versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Cache plugin-verifier IDE downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.pluginVerifier/ides
+          key: plugin-verifier-${{ runner.os }}-${{ hashFiles('gradle.properties') }}
+          restore-keys: |
+            plugin-verifier-${{ runner.os }}-
+
+      - name: Run plugin-verifier
+        run: ./gradlew verifyPlugin --stacktrace
+
+      - name: Upload verifier report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-verifier-report
+          path: build/reports/pluginVerifier/
+          retention-days: 14
