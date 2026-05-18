@@ -57,6 +57,15 @@
         <checkinHandlerFactory
                 implementation="com.power.gitinsight.infra.checkin.RiskCheckinHandlerFactory"/>
 
+        <applicationService
+                serviceImplementation="com.power.gitinsight.domain.risk.RiskSettings"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                id="com.power.gitinsight.commitRisk"
+                displayName="GitInsight: Commit Risk"
+                instance="com.power.gitinsight.ui.checkin.RiskSettingsConfigurable"/>
+
         <codeInsight.lineMarkerProvider
                 language="JAVA"
                 implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>

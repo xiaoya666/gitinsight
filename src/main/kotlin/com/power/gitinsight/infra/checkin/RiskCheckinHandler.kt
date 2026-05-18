@@ -8,6 +8,7 @@ import com.intellij.openapi.vcs.checkin.CheckinHandler
 import com.power.gitinsight.domain.risk.RiskEngine
 import com.power.gitinsight.domain.risk.RiskLevel
 import com.power.gitinsight.domain.risk.RiskReport
+import com.power.gitinsight.domain.risk.RiskSettings
 import com.power.gitinsight.ui.checkin.RiskDialog
 
 /**
@@ -29,7 +30,8 @@ internal class RiskCheckinHandler(private val panel: CheckinProjectPanel) : Chec
             ProgressManager.getInstance().runProcessWithProgressSynchronously(
                 ThrowableComputable<RiskReport, Exception> {
                     val context = DiffContextBuilder.build(project, panel)
-                    RiskEngine.evaluate(context)
+                    val rules = RiskSettings.getInstance().activeRules()
+                    RiskEngine.evaluate(context, rules)
                 },
                 "GitInsight: Analyzing Commit Risk",
                 /* canBeCanceled = */ true,
