@@ -80,6 +80,12 @@
                 implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
     </extensions>
 
+    <projectListeners>
+        <listener
+                class="com.power.gitinsight.ui.gutter.HotspotGutterInstaller"
+                topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </projectListeners>
+
     <actions>
         <action
                 id="GitInsight.HelloAction"
