@@ -54,6 +54,9 @@
         <projectService
                 serviceImplementation="com.power.gitinsight.domain.hotspot.HotspotService"/>
 
+        <checkinHandlerFactory
+                implementation="com.power.gitinsight.infra.checkin.RiskCheckinHandlerFactory"/>
+
         <codeInsight.lineMarkerProvider
                 language="JAVA"
                 implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
