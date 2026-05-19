@@ -66,6 +66,15 @@
                 displayName="GitInsight: Commit Risk"
                 instance="com.power.gitinsight.ui.checkin.RiskSettingsConfigurable"/>
 
+        <applicationService
+                serviceImplementation="com.power.gitinsight.domain.ai.AiSettings"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                id="com.power.gitinsight.ai"
+                displayName="GitInsight: AI"
+                instance="com.power.gitinsight.ui.ai.AiSettingsConfigurable"/>
+
         <codeInsight.lineMarkerProvider
                 language="JAVA"
                 implementationClass="com.power.gitinsight.ui.tooltip.BlameLineMarkerProvider"/>
@@ -105,6 +114,15 @@
                 text="GitInsight: Hello"
                 description="Sanity check that the GitInsight plugin is loaded.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+        <action
+                id="GitInsight.GenerateCommitMessage"
+                class="com.power.gitinsight.ui.ai.GenerateCommitMessageAction"
+                text="✨ GitInsight: AI Commit Message"
+                description="Generate a commit message from the staged changes using the configured AI provider.">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <add-to-group group-id="Vcs.MessageActionGroup" anchor="last"/>
         </action>
     </actions>
 </idea-plugin>
