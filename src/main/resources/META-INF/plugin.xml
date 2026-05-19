@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>io.github.xiaoya666.gitinsight</id>
-    <name>GitInsight Pro</name>
+    <name>gitInsightPro</name>
     <vendor email="xiaoya666@users.noreply.github.com" url="https://github.com/xiaoya666/gitinsight">Power</vendor>
 
     <description><![CDATA[
