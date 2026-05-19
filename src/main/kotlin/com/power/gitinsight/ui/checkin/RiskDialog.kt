@@ -1,16 +1,32 @@
 package com.power.gitinsight.ui.checkin
 
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.vcs.changes.Change
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
+import com.power.gitinsight.domain.ai.AiOptions
+import com.power.gitinsight.domain.ai.AiResult
+import com.power.gitinsight.domain.ai.AiReviewPrompt
+import com.power.gitinsight.domain.ai.AiSettings
 import com.power.gitinsight.domain.risk.RiskLevel
 import com.power.gitinsight.domain.risk.RiskReport
+import com.power.gitinsight.ui.ai.AiReviewDialog
 import java.awt.Color
 import java.awt.Component
 import java.awt.Font
+import java.awt.event.ActionEvent
+import javax.swing.AbstractAction
+import javax.swing.Action
 import javax.swing.Box
 import javax.swing.BoxLayout
 import javax.swing.JComponent
@@ -21,12 +37,17 @@ import javax.swing.JPanel
  * Class Name: RiskDialog
  * Description: Modal commit-time view of a RiskReport — score header (colored by level), triggered rules
  *              with evidence, suggestions. OK = continue submitting; Cancel = abort the commit.
- *              Sprint 4 will plug an "AI Review" side action; for now we ship the deterministic view.
+ *              Left-side "让 AI 审一下" button kicks off the AI review flow without dismissing the dialog,
+ *              so the user can act on AI feedback and then decide whether to proceed.
  *
  * @author: power
  * on Date: 2026/05/18 Time: 21:08
  **/
-internal class RiskDialog(project: Project, private val report: RiskReport) : DialogWrapper(project) {
+internal class RiskDialog(
+    private val project: Project,
+    private val changes: List<Change>,
+    private val report: RiskReport
+) : DialogWrapper(project) {
 
     init {
         title = "GitInsight: Commit Risk Score"
@@ -48,6 +69,54 @@ internal class RiskDialog(project: Project, private val report: RiskReport) : Di
             root.add(leftAlign(buildSuggestions()))
         }
         return root
+    }
+
+    /** Left-side actions live next to Cancel — used here for the non-dismissing AI Review trigger. */
+    override fun createLeftSideActions(): Array<Action> =
+        if (changes.isEmpty()) emptyArray() else arrayOf(
+            object : AbstractAction("🔎 让 AI 审一下") {
+                override fun actionPerformed(e: ActionEvent?) {
+                    isEnabled = false  // disable while running so the user can't pile up requests
+                    triggerAiReview { isEnabled = true }
+                }
+            }
+        )
+
+    private fun triggerAiReview(onDone: () -> Unit) {
+        ProgressManager.getInstance().run(
+            object : Task.Backgroundable(project, "GitInsight: Running AI diff review", true) {
+                override fun run(indicator: ProgressIndicator) {
+                    indicator.isIndeterminate = true
+                    val messages = listOf(
+                        AiReviewPrompt.systemMessage(),
+                        AiReviewPrompt.userMessage(changes)
+                    )
+                    val provider = AiSettings.getInstance().activeProvider()
+                    val result = provider.complete(
+                        messages,
+                        AiOptions(maxTokens = 2048, temperature = 0.2, timeoutSeconds = 60)
+                    )
+                    ApplicationManager.getApplication().invokeLater {
+                        onDone()
+                        if (project.isDisposed) return@invokeLater
+                        when (result) {
+                            is AiResult.Success -> AiReviewDialog(project, provider.displayName, result.text).show()
+                            is AiResult.Error -> {
+                                thisLogger().info("[GitInsight] AI review failed: ${result.message}")
+                                notify(project, "GitInsight: ${result.message}", NotificationType.WARNING)
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    private fun notify(project: Project, message: String, type: NotificationType) {
+        NotificationGroupManager.getInstance()
+            .getNotificationGroup("GitInsight Notifications")
+            .createNotification(message, type)
+            .notify(project)
     }
 
     private fun buildHeader(): JComponent {

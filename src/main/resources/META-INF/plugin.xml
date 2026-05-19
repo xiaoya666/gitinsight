@@ -124,5 +124,14 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="Vcs.MessageActionGroup" anchor="last"/>
         </action>
+
+        <action
+                id="GitInsight.AiReviewDiff"
+                class="com.power.gitinsight.ui.ai.AiReviewAction"
+                text="🔎 GitInsight: AI Review Diff"
+                description="Ask the configured AI provider to review the current changes for bugs and code smells.">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>

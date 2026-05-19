@@ -50,7 +50,8 @@ internal class RiskCheckinHandler(private val panel: CheckinProjectPanel) : Chec
         // Don't add friction for clean commits — only surface dialog for MEDIUM/HIGH.
         if (report.level == RiskLevel.LOW) return ReturnResult.COMMIT
 
-        val proceed = RiskDialog(project, report).showAndGet()
+        val changes = panel.selectedChanges.toList()
+        val proceed = RiskDialog(project, changes, report).showAndGet()
         return if (proceed) ReturnResult.COMMIT else ReturnResult.CANCEL
     }
 }
