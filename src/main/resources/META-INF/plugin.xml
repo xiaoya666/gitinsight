@@ -16,6 +16,10 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.0.2</h3>
+        <ul>
+            <li>Hotspot dashboard: lighter pastel colors on the Score column (Material 100/200 instead of 500) so the table is less heavy.</li>
+        </ul>
         <h3>1.0.1</h3>
         <ul>
             <li>Rename: plugin is now <b>Commit Radar</b> (was <i>GitInsight</i>) to avoid a marketplace name collision.</li>

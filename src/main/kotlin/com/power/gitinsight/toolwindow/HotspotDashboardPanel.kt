@@ -151,9 +151,11 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
         }
 
         private companion object {
-            val GREEN = JBColor(Color(76, 175, 80), Color(56, 142, 60))
-            val AMBER = JBColor(Color(255, 193, 7), Color(255, 160, 0))
-            val RED = JBColor(Color(244, 67, 54), Color(211, 47, 47))
+            // Pastel fills — Material 100/200 in light, muted variants in dark. Just enough hue to
+            // scan the table at a glance without fighting with text contrast.
+            val GREEN = JBColor(Color(200, 230, 201), Color(46, 78, 51))
+            val AMBER = JBColor(Color(255, 224, 130), Color(102, 80, 28))
+            val RED = JBColor(Color(239, 154, 154), Color(110, 46, 46))
             val FG = JBColor(Color(33, 33, 33), Color(245, 245, 245))
         }
     }
