@@ -71,7 +71,7 @@ internal class BlameLineMarkerProvider : LineMarkerProvider {
 
     private fun buildMarker(element: PsiElement, blame: BlameLine): LineMarkerInfo<PsiElement> {
         val tooltipProvider = Function<PsiElement, String> { BlameTooltipRenderer.renderHtml(blame) }
-        val accessibleName = Supplier { "GitInsight blame: ${blame.author}" }
+        val accessibleName = Supplier { "Commit Radar blame: ${blame.author}" }
         return LineMarkerInfo(
             element,
             element.textRange,

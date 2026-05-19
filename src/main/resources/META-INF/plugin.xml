@@ -4,7 +4,7 @@
     <vendor email="xiaoya666@users.noreply.github.com" url="https://github.com/xiaoya666/gitinsight">Power</vendor>
 
     <description><![CDATA[
-        <h2>GitInsight — Git change-risk dashboard for IntelliJ IDEs</h2>
+        <h2>Commit Radar — Git change-risk dashboard for IntelliJ IDEs</h2>
         <p>Not just <code>git blame</code>, but <code>git insight</code>:</p>
         <ul>
             <li><b>Enhanced Blame</b> — hover a line to see author, modify frequency, and incident links.</li>
@@ -16,6 +16,12 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.0.1</h3>
+        <ul>
+            <li>Rename: plugin is now <b>Commit Radar</b> (was <i>GitInsight</i>) to avoid a marketplace name collision.</li>
+            <li>All user-visible labels, the ToolWindow tab, the Preferences pages, and notifications now use the new name.</li>
+            <li>No functional changes; installs cleanly on top of 1.0.0.</li>
+        </ul>
         <h3>1.0.0</h3>
         <ul>
             <li>First stable release — feature set frozen from 0.2.0 with broader IDE compatibility.</li>
@@ -25,7 +31,7 @@
         <ul>
             <li><b>Enhanced Blame</b> — gutter icon with rich tooltip per line; cached in SQLite.</li>
             <li><b>Hotspot Heatmap</b> — multi-factor score (modify / rollback / recency / authors); 3px gutter color band + dashboard ToolWindow with sortable top-50 list and double-click to open.</li>
-            <li><b>Commit Risk Score</b> — checkin handler runs an 8-rule engine (payment / SQL / concurrency / large delete / cross-module / no-tests / CI / hotspot-touch) and surfaces a dialog for MEDIUM / HIGH commits. Per-rule on/off in Preferences > Tools > GitInsight: Commit Risk.</li>
+            <li><b>Commit Risk Score</b> — checkin handler runs an 8-rule engine (payment / SQL / concurrency / large delete / cross-module / no-tests / CI / hotspot-touch) and surfaces a dialog for MEDIUM / HIGH commits. Per-rule on/off in Preferences > Tools > Commit Radar: Risk Rules.</li>
             <li><b>AI Commit Message</b> — Tools menu / commit area button; supports OpenAI, Anthropic Claude, DeepSeek, Ollama, and a free Cloudflare Workers AI fallback. API keys stored in IDE PasswordSafe.</li>
             <li><b>AI Diff Review</b> — right-click changelist or use the "让 AI 审一下" button inside the Risk dialog; surfaces NPE / BigDecimal / @Transactional / lock / SQL / resource-leak findings as Markdown.</li>
             <li>Compatibility: IDEA 2024.2-2024.3, JVM 21.</li>
@@ -44,12 +50,12 @@
                 implementation="com.power.gitinsight.GitInsightStartupActivity"/>
 
         <toolWindow
-                id="GitInsight"
+                id="Commit Radar"
                 anchor="right"
                 factoryClass="com.power.gitinsight.toolwindow.GitInsightToolWindowFactory"/>
 
         <notificationGroup
-                id="GitInsight Notifications"
+                id="Commit Radar Notifications"
                 displayType="BALLOON"/>
 
         <applicationService
@@ -77,7 +83,7 @@
         <applicationConfigurable
                 parentId="tools"
                 id="com.power.gitinsight.commitRisk"
-                displayName="GitInsight: Commit Risk"
+                displayName="Commit Radar: Risk Rules"
                 instance="com.power.gitinsight.ui.checkin.RiskSettingsConfigurable"/>
 
         <applicationService
@@ -86,7 +92,7 @@
         <applicationConfigurable
                 parentId="tools"
                 id="com.power.gitinsight.ai"
-                displayName="GitInsight: AI"
+                displayName="Commit Radar: AI"
                 instance="com.power.gitinsight.ui.ai.AiSettingsConfigurable"/>
 
         <codeInsight.lineMarkerProvider
@@ -123,26 +129,26 @@
 
     <actions>
         <action
-                id="GitInsight.HelloAction"
+                id="CommitRadar.HelloAction"
                 class="com.power.gitinsight.action.HelloAction"
-                text="GitInsight: Hello"
-                description="Sanity check that the GitInsight plugin is loaded.">
+                text="Commit Radar: Hello"
+                description="Sanity check that the Commit Radar plugin is loaded.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
 
         <action
-                id="GitInsight.GenerateCommitMessage"
+                id="CommitRadar.GenerateCommitMessage"
                 class="com.power.gitinsight.ui.ai.GenerateCommitMessageAction"
-                text="✨ GitInsight: AI Commit Message"
+                text="✨ Commit Radar: AI Commit Message"
                 description="Generate a commit message from the staged changes using the configured AI provider.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="Vcs.MessageActionGroup" anchor="last"/>
         </action>
 
         <action
-                id="GitInsight.AiReviewDiff"
+                id="CommitRadar.AiReviewDiff"
                 class="com.power.gitinsight.ui.ai.AiReviewAction"
-                text="🔎 GitInsight: AI Review Diff"
+                text="🔎 Commit Radar: AI Review Diff"
                 description="Ask the configured AI provider to review the current changes for bugs and code smells.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>

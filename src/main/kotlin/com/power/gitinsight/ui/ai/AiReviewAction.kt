@@ -29,7 +29,7 @@ import com.power.gitinsight.domain.ai.AiSettings
  * on Date: 2026/05/19 Time: 14:18
  **/
 internal class AiReviewAction : AnAction(
-    "🔎 GitInsight: AI Review Diff",
+    "🔎 Commit Radar: AI Review Diff",
     "Ask the configured AI provider to review the current changes",
     null
 ) {
@@ -38,12 +38,12 @@ internal class AiReviewAction : AnAction(
         val project = e.project ?: return
         val changes = collectChanges(e, project)
         if (changes.isEmpty()) {
-            notify(project, "GitInsight: 当前 changelist 为空，没有内容可审。", NotificationType.INFORMATION)
+            notify(project, "Commit Radar: 当前 changelist 为空，没有内容可审。", NotificationType.INFORMATION)
             return
         }
 
         ProgressManager.getInstance().run(
-            object : Task.Backgroundable(project, "GitInsight: Running AI diff review", true) {
+            object : Task.Backgroundable(project, "Commit Radar: Running AI diff review", true) {
                 override fun run(indicator: ProgressIndicator) {
                     indicator.isIndeterminate = true
                     indicator.text = "Composing prompt..."
@@ -66,7 +66,7 @@ internal class AiReviewAction : AnAction(
                             is AiResult.Success -> AiReviewDialog(project, provider.displayName, result.text).show()
                             is AiResult.Error -> {
                                 thisLogger().info("[GitInsight] AI review failed: ${result.message}")
-                                notify(project, "GitInsight: ${result.message}", NotificationType.WARNING)
+                                notify(project, "Commit Radar: ${result.message}", NotificationType.WARNING)
                             }
                         }
                     }
@@ -84,7 +84,7 @@ internal class AiReviewAction : AnAction(
 
     private fun notify(project: Project, message: String, type: NotificationType) {
         NotificationGroupManager.getInstance()
-            .getNotificationGroup("GitInsight Notifications")
+            .getNotificationGroup("Commit Radar Notifications")
             .createNotification(message, type)
             .notify(project)
     }

@@ -33,7 +33,7 @@ internal class RiskCheckinHandler(private val panel: CheckinProjectPanel) : Chec
                     val rules = RiskSettings.getInstance().activeRules()
                     RiskEngine.evaluate(context, rules)
                 },
-                "GitInsight: Analyzing Commit Risk",
+                "Commit Radar: Analyzing Commit Risk",
                 /* canBeCanceled = */ true,
                 project
             )

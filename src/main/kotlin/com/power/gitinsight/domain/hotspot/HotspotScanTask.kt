@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 internal class HotspotScanTask(
     project: Project,
     private val windowDays: Long = DEFAULT_WINDOW_DAYS
-) : Task.Backgroundable(project, "GitInsight: scanning file history", true) {
+) : Task.Backgroundable(project, "Commit Radar: scanning file history", true) {
 
     override fun run(indicator: ProgressIndicator) {
         val proj = myProject ?: return
@@ -42,7 +42,7 @@ internal class HotspotScanTask(
         for ((index, repo) in repos.withIndex()) {
             indicator.checkCanceled()
             indicator.fraction = index.toDouble() / repos.size
-            indicator.text = "GitInsight: scanning ${repo.root.name}"
+            indicator.text = "Commit Radar: scanning ${repo.root.name}"
 
             val events = adapter.scanFileHistory(proj, repo.root, sinceMs)
             if (events.isEmpty()) {
