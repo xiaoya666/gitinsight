@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.power.gitinsight</id>
     <name>GitInsight</name>
-    <vendor email="support@gitinsight.dev" url="https://github.com/power/gitinsight">Power</vendor>
+    <vendor email="support@gitinsight.dev" url="https://github.com/xiaoya666/gitinsight">Power</vendor>
 
     <description><![CDATA[
         <h2>GitInsight — Git change-risk dashboard for IntelliJ IDEs</h2>
@@ -16,6 +16,15 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>0.2.0</h3>
+        <ul>
+            <li><b>Enhanced Blame</b> — gutter icon with rich tooltip per line; cached in SQLite.</li>
+            <li><b>Hotspot Heatmap</b> — multi-factor score (modify / rollback / recency / authors); 3px gutter color band + dashboard ToolWindow with sortable top-50 list and double-click to open.</li>
+            <li><b>Commit Risk Score</b> — checkin handler runs an 8-rule engine (payment / SQL / concurrency / large delete / cross-module / no-tests / CI / hotspot-touch) and surfaces a dialog for MEDIUM / HIGH commits. Per-rule on/off in Preferences > Tools > GitInsight: Commit Risk.</li>
+            <li><b>AI Commit Message</b> — Tools menu / commit area button; supports OpenAI, Anthropic Claude, DeepSeek, Ollama, and a free Cloudflare Workers AI fallback. API keys stored in IDE PasswordSafe.</li>
+            <li><b>AI Diff Review</b> — right-click changelist or use the "让 AI 审一下" button inside the Risk dialog; surfaces NPE / BigDecimal / @Transactional / lock / SQL / resource-leak findings as Markdown.</li>
+            <li>Compatibility: IDEA 2024.2-2024.3, JVM 21.</li>
+        </ul>
         <h3>0.1.0</h3>
         <ul>
             <li>Initial scaffold.</li>
