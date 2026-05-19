@@ -13,13 +13,16 @@ import com.intellij.ui.table.JBTable
 import com.power.gitinsight.domain.hotspot.FileHotspot
 import com.power.gitinsight.domain.hotspot.HotspotService
 import git4idea.repo.GitRepositoryManager
+import com.intellij.ui.JBColor
 import java.awt.BorderLayout
+import java.awt.Color
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.awt.Component
+import javax.swing.SwingConstants
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JScrollPane
@@ -62,7 +65,12 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
             minWidth = 180
             cellRenderer = FilePathRenderer()
         }
-        listOf(1, 2, 3).forEach { i ->
+        cm.getColumn(1).apply {
+            preferredWidth = 64
+            maxWidth = 90
+            cellRenderer = ScoreCellRenderer()
+        }
+        listOf(2, 3).forEach { i ->
             cm.getColumn(i).apply {
                 preferredWidth = 64
                 maxWidth = 90
@@ -110,6 +118,44 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
                 FileEditorManager.getInstance(project).openFile(target, true)
             }
         })
+    }
+
+    /**
+     * Paints the Score column background green/amber/red by threshold. Matches the RiskLevel bands
+     * (LOW < 40, MEDIUM 40-69, HIGH >= 70) so a quick scan of the dashboard lines up with the
+     * commit-time dialog risk colors.
+     */
+    private class ScoreCellRenderer : DefaultTableCellRenderer() {
+        init { horizontalAlignment = SwingConstants.RIGHT }
+
+        override fun getTableCellRendererComponent(
+            table: JTable,
+            value: Any?,
+            isSelected: Boolean,
+            hasFocus: Boolean,
+            row: Int,
+            column: Int
+        ): Component {
+            val c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
+            val score = (value as? Number)?.toDouble() ?: 0.0
+            // Selection highlight wins; otherwise paint by score.
+            if (!isSelected) background = bandColor(score)
+            foreground = if (isSelected) table.selectionForeground else FG
+            return c
+        }
+
+        private fun bandColor(score: Double): Color = when {
+            score >= 70 -> RED
+            score >= 40 -> AMBER
+            else -> GREEN
+        }
+
+        private companion object {
+            val GREEN = JBColor(Color(76, 175, 80), Color(56, 142, 60))
+            val AMBER = JBColor(Color(255, 193, 7), Color(255, 160, 0))
+            val RED = JBColor(Color(244, 67, 54), Color(211, 47, 47))
+            val FG = JBColor(Color(33, 33, 33), Color(245, 245, 245))
+        }
     }
 
     /** Shows the full file path as a tooltip so truncated cells stay readable. */
