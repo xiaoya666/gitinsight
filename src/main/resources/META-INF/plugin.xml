@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.github.xiaoya666.gitinsight</id>
     <name>GitInsight Pro</name>
-    <vendor email="support@gitinsight.dev" url="https://github.com/xiaoya666/gitinsight">Power</vendor>
+    <vendor email="xiaoya666@users.noreply.github.com" url="https://github.com/xiaoya666/gitinsight">Power</vendor>
 
     <description><![CDATA[
         <h2>GitInsight — Git change-risk dashboard for IntelliJ IDEs</h2>
