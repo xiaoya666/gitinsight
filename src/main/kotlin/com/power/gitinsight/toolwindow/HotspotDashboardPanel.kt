@@ -52,10 +52,36 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
 
     init {
         configureColumns()
+        installHeaderTooltips()
         add(buildToolbar(), BorderLayout.NORTH)
         add(JScrollPane(table), BorderLayout.CENTER)
         wireDoubleClickToOpen()
         refresh()
+    }
+
+    private fun installHeaderTooltips() {
+        table.tableHeader = object : javax.swing.table.JTableHeader(table.columnModel) {
+            override fun getToolTipText(event: java.awt.event.MouseEvent): String? {
+                val viewIdx = columnModel.getColumnIndexAtX(event.x)
+                if (viewIdx < 0) return null
+                val modelIdx = table.convertColumnIndexToModel(viewIdx)
+                return columnTooltip(modelIdx)
+            }
+        }
+    }
+
+    private fun columnTooltip(modelColumn: Int): String? = when (modelColumn) {
+        1 -> """
+            <html>
+            <b>Risk score</b> (0 lowest, 100 highest).<br/><br/>
+            <b>raw</b> = 1.0·ln(1+modifies) + 2.0·recency + 1.5·conflicts + 3.0·rollbacks + 0.8·ln(1+authors)<br/>
+            <b>score</b> = tanh(raw / 30) × 100<br/><br/>
+            Bands: <span style='color:#388e3c'>LOW &lt; 40</span> ·
+            <span style='color:#f57c00'>MED 40–69</span> ·
+            <span style='color:#d32f2f'>HIGH ≥ 70</span>
+            </html>
+        """.trimIndent()
+        else -> null
     }
 
     private fun configureColumns() {
