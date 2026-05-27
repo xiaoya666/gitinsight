@@ -1,10 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
-  <!-- Git branch line on the left: three commits color-graded by risk -->
-  <line x1="11" y1="7" x2="11" y2="33" stroke="#5C6BC0" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="11" cy="9.5" r="3" fill="#43A047"/>
-  <circle cx="11" cy="20" r="3" fill="#F9A825"/>
-  <circle cx="11" cy="30.5" r="3.5" fill="#E53935"/>
-  <!-- Insight gauge arc to the right: rising risk needle -->
-  <path d="M19 27 A 9 9 0 0 1 32 14" stroke="#E53935" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <circle cx="32" cy="14" r="2.2" fill="#E53935"/>
+  <circle cx="11" cy="30" r="6.5" fill="#E53935" fill-opacity="0.18"/>
+  <line x1="11" y1="7.5" x2="11" y2="30" stroke="#5C6BC0" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="11" cy="7.5" r="2.4" fill="#43A047"/>
+  <circle cx="11" cy="18.5" r="3.4" fill="#F9A825"/>
+  <circle cx="11" cy="30" r="4.8" fill="#E53935"/>
+  <path d="M20 28 A 10 10 0 0 1 33 14" stroke="#E53935" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <circle cx="33" cy="14" r="2.3" fill="#E53935"/>
 </svg>
