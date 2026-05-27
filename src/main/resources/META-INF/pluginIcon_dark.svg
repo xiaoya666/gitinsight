@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+  <!-- Dark-theme variant: lighter branch line; risk dots and gauge keep their hues for legibility -->
+  <line x1="11" y1="7" x2="11" y2="33" stroke="#A5B4FC" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="11" cy="9.5" r="3" fill="#66BB6A"/>
+  <circle cx="11" cy="20" r="3" fill="#FBC02D"/>
+  <circle cx="11" cy="30.5" r="3.5" fill="#EF5350"/>
+  <path d="M19 27 A 9 9 0 0 1 32 14" stroke="#EF5350" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="32" cy="14" r="2.2" fill="#EF5350"/>
+</svg>

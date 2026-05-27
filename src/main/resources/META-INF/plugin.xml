@@ -89,6 +89,15 @@
                 instance="com.power.gitinsight.ui.ai.AiSettingsConfigurable"/>
 
         <applicationService
+                serviceImplementation="com.power.gitinsight.domain.license.LicenseSettings"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                id="com.power.gitinsight.license"
+                displayName="GitInsight: License"
+                instance="com.power.gitinsight.ui.license.LicenseSettingsConfigurable"/>
+
+        <applicationService
                 serviceImplementation="com.power.gitinsight.domain.telemetry.TelemetrySettings"/>
 
         <applicationService
@@ -153,8 +162,8 @@
         <action
                 id="GitInsight.AiReviewDiff"
                 class="com.power.gitinsight.ui.ai.AiReviewAction"
-                text="🔎 GitInsight: AI Review Diff"
-                description="Ask the configured AI provider to review the current changes for bugs and code smells.">
+                text="🔎 GitInsight: AI Review Diff [Pro Preview]"
+                description="Pro Preview — free during 1.0.x. Asks the configured AI provider to review current changes for bugs and code smells.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>

@@ -48,7 +48,8 @@ internal class RiskSettingsConfigurable : Configurable {
         checkboxes.values.forEach { cb -> panel.add(leftAlign(cb)) }
         panel.add(Box.createVerticalStrut(12))
         panel.add(leftAlign(JBLabel(
-            "<html><i>Pro 用法：在项目根目录建 <code>.gitinsight/risk.yml</code> 即可按项目覆盖" +
+            "<html><i><b>[Pro Preview]</b> 项目级规则覆盖（1.0.x 期间免费开放，1.1.x 起需 Pro）：" +
+                "在项目根目录建 <code>.gitinsight/risk.yml</code> 即可按项目覆盖" +
                 "上面的开关 / 分值。格式：<br/>" +
                 "<code>rules:<br/>" +
                 "&nbsp;&nbsp;payment-touch:<br/>" +

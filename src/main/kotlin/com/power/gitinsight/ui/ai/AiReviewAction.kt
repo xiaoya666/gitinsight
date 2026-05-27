@@ -29,8 +29,8 @@ import com.power.gitinsight.domain.ai.AiSettings
  * on Date: 2026/05/19 Time: 14:18
  **/
 internal class AiReviewAction : AnAction(
-    "🔎 GitInsight: AI Review Diff",
-    "Ask the configured AI provider to review the current changes",
+    "🔎 GitInsight: AI Review Diff [Pro Preview]",
+    "Pro Preview — free during 1.0.x. Asks the configured AI provider to review the current changes.",
     null
 ) {
 
