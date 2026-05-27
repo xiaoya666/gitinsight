@@ -17,9 +17,9 @@ internal class HelloAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val projectName = e.project?.name ?: "<no project>"
         NotificationGroupManager.getInstance()
-            .getNotificationGroup("Commit Radar Notifications")
+            .getNotificationGroup("GitInsight Notifications")
             .createNotification(
-                "Commit Radar is alive in project $projectName",
+                "GitInsight is alive in project $projectName",
                 NotificationType.INFORMATION
             )
             .notify(e.project)

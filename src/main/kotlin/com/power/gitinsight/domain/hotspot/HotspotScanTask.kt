@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 internal class HotspotScanTask(
     project: Project,
     private val windowDays: Long = DEFAULT_WINDOW_DAYS
-) : Task.Backgroundable(project, "Commit Radar: scanning file history", true) {
+) : Task.Backgroundable(project, "GitInsight: scanning file history", true) {
 
     override fun run(indicator: ProgressIndicator) {
         val proj = myProject ?: return
@@ -42,17 +42,18 @@ internal class HotspotScanTask(
         for ((index, repo) in repos.withIndex()) {
             indicator.checkCanceled()
             indicator.fraction = index.toDouble() / repos.size
-            indicator.text = "Commit Radar: scanning ${repo.root.name}"
+            indicator.text = "GitInsight: scanning ${repo.root.name}"
 
-            val events = adapter.scanFileHistory(proj, repo.root, sinceMs)
-            if (events.isEmpty()) {
+            val history = adapter.scanRepoHistory(proj, repo.root, sinceMs)
+            if (history.events.isEmpty()) {
                 thisLogger().info("HotspotScanTask: ${repo.root.path} produced 0 events")
                 continue
             }
 
             val repoId = sha1Hex16(repo.root.path)
-            val aggregated = HotspotAggregator.aggregate(repoId, events)
+            val aggregated = HotspotAggregator.aggregate(repoId, history.events)
             val now = System.currentTimeMillis()
+            val incidents = history.commits.filter { it.incidentReason != null }
 
             runCatching {
                 storage.hotspotQueries.transaction {
@@ -74,6 +75,27 @@ internal class HotspotScanTask(
             }.onSuccess {
                 totalRows += aggregated.size
                 thisLogger().info("HotspotScanTask: wrote ${aggregated.size} hotspot rows for ${repo.root.path}")
+            }
+
+            if (incidents.isNotEmpty()) {
+                runCatching {
+                    storage.incidentQueries.transaction {
+                        incidents.forEach { commit ->
+                            val reason = commit.incidentReason ?: return@forEach
+                            storage.incidentQueries.upsertIncident(
+                                repo_id = repoId,
+                                commit_id = commit.commitId,
+                                reason = reason.name,
+                                subject = commit.subject,
+                                marked_at = now
+                            )
+                        }
+                    }
+                }.onFailure {
+                    thisLogger().info("HotspotScanTask: incident upsert failed for ${repo.root.path}: ${it.message}")
+                }.onSuccess {
+                    thisLogger().info("HotspotScanTask: wrote ${incidents.size} incident rows for ${repo.root.path}")
+                }
             }
         }
 

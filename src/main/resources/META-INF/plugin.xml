@@ -1,52 +1,28 @@
 <idea-plugin>
-    <id>io.github.xiaoya666.gitinsight</id>
-    <name>Commit Radar</name>
-    <vendor email="xiaoya666@users.noreply.github.com" url="https://github.com/xiaoya666/gitinsight">Power</vendor>
+    <id>com.power.gitinsight</id>
+    <name>GitInsight</name>
+    <vendor email="xiaoya666@users.noreply.github.com" url="https://github.com/xiaoya666/gitinsight">fangyajun</vendor>
 
     <description><![CDATA[
-        <h2>Commit Radar — Git change-risk dashboard for IntelliJ IDEs</h2>
-        <p>Not just <code>git blame</code>, but <code>git insight</code>:</p>
+        <h2>GitInsight — Git change-risk dashboard for IntelliJ IDEs</h2>
+        <p>Not just <code>git blame</code>, but <code>git insight</code>. GitInsight surfaces what plain Git can't: how risky your change really is, who else has been burned by this file, and which lines have a history of incidents.</p>
         <ul>
-            <li><b>Enhanced Blame</b> — hover a line to see author, modify frequency, and incident links.</li>
-            <li><b>Hotspot Heatmap</b> — gutter colors mark high-risk files (frequent modify / rollback / conflicts).</li>
-            <li><b>Commit Risk Score</b> — get a risk evaluation before you commit, with rule-driven explanations.</li>
-            <li><b>AI Commit / AI Review</b> — optional AI assistance (BYO key or built-in fallback).</li>
+            <li><b>Enhanced Blame</b> — hover any line to see author, recent modify frequency, and an incident badge when the commit was a revert / hotfix / rollback.</li>
+            <li><b>Hotspot Heatmap</b> — multi-factor score (modify count, recency, rollbacks, author diversity) shown as a gutter color band and a sortable dashboard tool window.</li>
+            <li><b>Commit Risk Score</b> — pre-commit analysis with an 8-rule engine (payment / SQL / concurrency / large delete / cross-module / no-tests / CI / hotspot-touch). Per-project YAML overrides via <code>.gitinsight/risk.yml</code>.</li>
+            <li><b>Incident Commit Tracking</b> — automatically classifies revert / hotfix / rollback commits during the history scan; surfaces them in the blame tooltip.</li>
+            <li><b>Activity Dashboard</b> — your last-30-days commit count, incident rate, and recent commit list, in a dedicated tool-window tab.</li>
+            <li><b>AI Commit Message</b> &amp; <b>AI Diff Review</b> — optional AI assistance. Supports OpenAI, Anthropic Claude, DeepSeek, Ollama, and a free Cloudflare Workers AI fallback. API keys stored in IDE PasswordSafe.</li>
+            <li><b>Anonymous Telemetry</b> — disabled by default. When enabled, only sends exception stacks, IDE / plugin version, and a random install id. Never code, file paths, usernames, or git URLs.</li>
         </ul>
-        <p>Free core (Apache-2.0 open source). Pro features available.</p>
+        <p>Free core (Apache-2.0 open source). Compatible with IDEA 2024.2 – 2025.3, JVM 21.</p>
     ]]></description>
 
     <change-notes><![CDATA[
-        <h3>1.0.3</h3>
-        <ul>
-            <li>Hotspot dashboard: hover the <b>Score</b> column header to see how the risk score is computed (formula + LOW/MED/HIGH bands).</li>
-        </ul>
-        <h3>1.0.2</h3>
-        <ul>
-            <li>Hotspot dashboard: lighter pastel colors on the Score column (Material 100/200 instead of 500) so the table is less heavy.</li>
-        </ul>
         <h3>1.0.1</h3>
         <ul>
-            <li>Rename: plugin is now <b>Commit Radar</b> (was <i>GitInsight</i>) to avoid a marketplace name collision.</li>
-            <li>All user-visible labels, the ToolWindow tab, the Preferences pages, and notifications now use the new name.</li>
-            <li>No functional changes; installs cleanly on top of 1.0.0.</li>
-        </ul>
-        <h3>1.0.0</h3>
-        <ul>
-            <li>First stable release — feature set frozen from 0.2.0 with broader IDE compatibility.</li>
-            <li>Compatibility: IDEA 2024.2 – 2025.3.</li>
-        </ul>
-        <h3>0.2.0</h3>
-        <ul>
-            <li><b>Enhanced Blame</b> — gutter icon with rich tooltip per line; cached in SQLite.</li>
-            <li><b>Hotspot Heatmap</b> — multi-factor score (modify / rollback / recency / authors); 3px gutter color band + dashboard ToolWindow with sortable top-50 list and double-click to open.</li>
-            <li><b>Commit Risk Score</b> — checkin handler runs an 8-rule engine (payment / SQL / concurrency / large delete / cross-module / no-tests / CI / hotspot-touch) and surfaces a dialog for MEDIUM / HIGH commits. Per-rule on/off in Preferences > Tools > Commit Radar: Risk Rules.</li>
-            <li><b>AI Commit Message</b> — Tools menu / commit area button; supports OpenAI, Anthropic Claude, DeepSeek, Ollama, and a free Cloudflare Workers AI fallback. API keys stored in IDE PasswordSafe.</li>
-            <li><b>AI Diff Review</b> — right-click changelist or use the "让 AI 审一下" button inside the Risk dialog; surfaces NPE / BigDecimal / @Transactional / lock / SQL / resource-leak findings as Markdown.</li>
-            <li>Compatibility: IDEA 2024.2-2024.3, JVM 21.</li>
-        </ul>
-        <h3>0.1.0</h3>
-        <ul>
-            <li>Initial scaffold.</li>
+            <li>Initial release of GitInsight: Enhanced Blame with incident badge, Hotspot Heatmap + dashboard, Commit Risk Score with 8-rule engine, per-project YAML rule overrides, AI commit message + diff review, personal activity dashboard, and opt-in anonymous telemetry.</li>
+            <li>Compatibility: IDEA 2024.2 – 2025.3, JVM 21.</li>
         </ul>
     ]]></change-notes>
 
@@ -58,12 +34,12 @@
                 implementation="com.power.gitinsight.GitInsightStartupActivity"/>
 
         <toolWindow
-                id="Commit Radar"
+                id="GitInsight"
                 anchor="right"
                 factoryClass="com.power.gitinsight.toolwindow.GitInsightToolWindowFactory"/>
 
         <notificationGroup
-                id="Commit Radar Notifications"
+                id="GitInsight Notifications"
                 displayType="BALLOON"/>
 
         <applicationService
@@ -82,16 +58,25 @@
         <projectService
                 serviceImplementation="com.power.gitinsight.domain.hotspot.HotspotService"/>
 
+        <projectService
+                serviceImplementation="com.power.gitinsight.domain.incident.IncidentService"/>
+
+        <projectService
+                serviceImplementation="com.power.gitinsight.domain.activity.ActivityService"/>
+
         <checkinHandlerFactory
                 implementation="com.power.gitinsight.infra.checkin.RiskCheckinHandlerFactory"/>
 
         <applicationService
                 serviceImplementation="com.power.gitinsight.domain.risk.RiskSettings"/>
 
+        <projectService
+                serviceImplementation="com.power.gitinsight.domain.risk.RiskRulesProjectLoader"/>
+
         <applicationConfigurable
                 parentId="tools"
                 id="com.power.gitinsight.commitRisk"
-                displayName="Commit Radar: Risk Rules"
+                displayName="GitInsight: Risk Rules"
                 instance="com.power.gitinsight.ui.checkin.RiskSettingsConfigurable"/>
 
         <applicationService
@@ -100,8 +85,20 @@
         <applicationConfigurable
                 parentId="tools"
                 id="com.power.gitinsight.ai"
-                displayName="Commit Radar: AI"
+                displayName="GitInsight: AI"
                 instance="com.power.gitinsight.ui.ai.AiSettingsConfigurable"/>
+
+        <applicationService
+                serviceImplementation="com.power.gitinsight.domain.telemetry.TelemetrySettings"/>
+
+        <applicationService
+                serviceImplementation="com.power.gitinsight.domain.telemetry.TelemetryService"/>
+
+        <applicationConfigurable
+                parentId="tools"
+                id="com.power.gitinsight.telemetry"
+                displayName="GitInsight: Telemetry"
+                instance="com.power.gitinsight.ui.telemetry.TelemetrySettingsConfigurable"/>
 
         <codeInsight.lineMarkerProvider
                 language="JAVA"
@@ -137,26 +134,26 @@
 
     <actions>
         <action
-                id="CommitRadar.HelloAction"
+                id="GitInsight.HelloAction"
                 class="com.power.gitinsight.action.HelloAction"
-                text="Commit Radar: Hello"
-                description="Sanity check that the Commit Radar plugin is loaded.">
+                text="GitInsight: Hello"
+                description="Sanity check that the GitInsight plugin is loaded.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
 
         <action
-                id="CommitRadar.GenerateCommitMessage"
+                id="GitInsight.GenerateCommitMessage"
                 class="com.power.gitinsight.ui.ai.GenerateCommitMessageAction"
-                text="✨ Commit Radar: AI Commit Message"
+                text="✨ GitInsight: AI Commit Message"
                 description="Generate a commit message from the staged changes using the configured AI provider.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="Vcs.MessageActionGroup" anchor="last"/>
         </action>
 
         <action
-                id="CommitRadar.AiReviewDiff"
+                id="GitInsight.AiReviewDiff"
                 class="com.power.gitinsight.ui.ai.AiReviewAction"
-                text="🔎 Commit Radar: AI Review Diff"
+                text="🔎 GitInsight: AI Review Diff"
                 description="Ask the configured AI provider to review the current changes for bugs and code smells.">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>

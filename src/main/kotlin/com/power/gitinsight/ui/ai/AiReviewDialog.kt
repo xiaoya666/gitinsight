@@ -29,7 +29,7 @@ internal class AiReviewDialog(
 ) : DialogWrapper(project) {
 
     init {
-        title = "Commit Radar: AI Review ($providerName)"
+        title = "GitInsight: AI Review ($providerName)"
         setOKButtonText("关闭")
         init()
     }

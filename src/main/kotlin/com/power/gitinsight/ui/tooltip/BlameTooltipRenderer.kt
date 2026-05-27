@@ -2,6 +2,7 @@ package com.power.gitinsight.ui.tooltip
 
 import com.intellij.openapi.util.text.StringUtil
 import com.power.gitinsight.domain.blame.BlameLine
+import com.power.gitinsight.domain.incident.IncidentService
 import java.util.concurrent.TimeUnit
 
 /**
@@ -14,13 +15,28 @@ import java.util.concurrent.TimeUnit
  **/
 internal object BlameTooltipRenderer {
 
-    fun renderHtml(line: BlameLine, nowMs: Long = System.currentTimeMillis()): String {
+    fun renderHtml(
+        line: BlameLine,
+        nowMs: Long = System.currentTimeMillis(),
+        incident: IncidentService.IncidentInfo? = null
+    ): String {
         val author = StringUtil.escapeXmlEntities(line.author.ifBlank { "(unknown)" })
         val summary = StringUtil.escapeXmlEntities(line.summary.ifBlank { "(no message)" })
         val shortHash = line.commitId.take(8)
         val ago = formatRelative(line.timestamp, nowMs)
         return buildString {
             append("<html><body style='font-family: sans-serif; max-width: 360px;'>")
+            if (incident != null) {
+                append("<div style='color:#b71c1c; margin-bottom:4px;'>")
+                append("\uD83D\uDD25 INCIDENT (")
+                append(StringUtil.escapeXmlEntities(incident.reason.name))
+                append(")")
+                if (incident.subject.isNotBlank()) {
+                    append(" — ")
+                    append(StringUtil.escapeXmlEntities(incident.subject))
+                }
+                append("</div>")
+            }
             append("<b>").append(author).append("</b>")
             if (ago.isNotEmpty()) append(" · ").append(ago)
             append("<br/>")

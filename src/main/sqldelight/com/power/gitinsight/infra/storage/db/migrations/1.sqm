@@ -1,0 +1,14 @@
+-- Migration v1 -> v2: introduce incident_commit table for L1 (incident commit identification).
+-- Existing users created at v1 have only blame_line and file_hotspot; this adds the new table
+-- without touching prior data. Fresh installs run Incident.sq via Schema.create instead.
+
+CREATE TABLE incident_commit (
+  repo_id    TEXT NOT NULL,
+  commit_id  TEXT NOT NULL,
+  reason     TEXT NOT NULL,
+  subject    TEXT NOT NULL,
+  marked_at  INTEGER NOT NULL,
+  PRIMARY KEY (repo_id, commit_id)
+);
+
+CREATE INDEX incident_commit_by_marked ON incident_commit(marked_at);

@@ -23,7 +23,7 @@ internal class ClaudeProvider(
     override fun complete(messages: List<AiMessage>, opts: AiOptions): AiResult {
         val key = apiKey()
         if (key.isNullOrBlank()) {
-            return AiResult.Error("$displayName 需要 API key — 请在 Preferences > Tools > Commit Radar: AI 中配置")
+            return AiResult.Error("$displayName 需要 API key — 请在 Preferences > Tools > GitInsight: AI 中配置")
         }
 
         val body = buildRequestBody(messages, opts)

@@ -30,6 +30,7 @@ internal class BlameStorage(private val project: Project) : Disposable {
 
     val blameQueries get() = database.blameQueries
     val hotspotQueries get() = database.hotspotQueries
+    val incidentQueries get() = database.incidentQueries
 
     /**
      * Idempotent schema bootstrap using SQLite's PRAGMA user_version.
@@ -38,25 +39,29 @@ internal class BlameStorage(private val project: Project) : Disposable {
      */
     private fun ensureSchema() {
         val schema = GitInsightDatabase.Schema
-        val current = readUserVersion()
-        when {
-            current == 0L && tablesExist() -> {
-                // Legacy DB created before we tracked user_version (0.1.0). Stamp the version
-                // and keep the existing data instead of throwing "table already exists".
-                writeUserVersion(schema.version)
-                thisLogger().info("BlameStorage: legacy DB detected, stamped v${schema.version}")
-            }
-            current == 0L -> {
+        var current = readUserVersion()
+
+        if (current == 0L) {
+            if (tablesExist()) {
+                // Legacy DB created before we tracked user_version (0.1.0). Pin to v1 baseline
+                // so the forward-migration path below can take it from v1 to the current version.
+                current = 1L
+                writeUserVersion(1L)
+                thisLogger().info("BlameStorage: legacy DB detected, stamped baseline v1")
+            } else {
                 schema.create(driver)
                 writeUserVersion(schema.version)
                 thisLogger().info("BlameStorage: created schema v${schema.version}")
+                return
             }
-            current < schema.version -> {
-                schema.migrate(driver, current, schema.version)
-                writeUserVersion(schema.version)
-                thisLogger().info("BlameStorage: migrated schema $current -> ${schema.version}")
-            }
-            else -> thisLogger().info("BlameStorage: schema up-to-date at v$current")
+        }
+
+        if (current < schema.version) {
+            schema.migrate(driver, current, schema.version)
+            writeUserVersion(schema.version)
+            thisLogger().info("BlameStorage: migrated schema $current -> ${schema.version}")
+        } else {
+            thisLogger().info("BlameStorage: schema up-to-date at v$current")
         }
     }
 

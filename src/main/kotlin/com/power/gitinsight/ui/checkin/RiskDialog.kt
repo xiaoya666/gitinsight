@@ -50,7 +50,7 @@ internal class RiskDialog(
 ) : DialogWrapper(project) {
 
     init {
-        title = "Commit Radar: Commit Risk Score"
+        title = "GitInsight: Commit Risk Score"
         setOKButtonText("继续提交")
         setCancelButtonText("取消")
         init()
@@ -84,7 +84,7 @@ internal class RiskDialog(
 
     private fun triggerAiReview(onDone: () -> Unit) {
         ProgressManager.getInstance().run(
-            object : Task.Backgroundable(project, "Commit Radar: Running AI diff review", true) {
+            object : Task.Backgroundable(project, "GitInsight: Running AI diff review", true) {
                 override fun run(indicator: ProgressIndicator) {
                     indicator.isIndeterminate = true
                     val messages = listOf(
@@ -103,7 +103,7 @@ internal class RiskDialog(
                             is AiResult.Success -> AiReviewDialog(project, provider.displayName, result.text).show()
                             is AiResult.Error -> {
                                 thisLogger().info("[GitInsight] AI review failed: ${result.message}")
-                                notify(project, "Commit Radar: ${result.message}", NotificationType.WARNING)
+                                notify(project, "GitInsight: ${result.message}", NotificationType.WARNING)
                             }
                         }
                     }
@@ -114,7 +114,7 @@ internal class RiskDialog(
 
     private fun notify(project: Project, message: String, type: NotificationType) {
         NotificationGroupManager.getInstance()
-            .getNotificationGroup("Commit Radar Notifications")
+            .getNotificationGroup("GitInsight Notifications")
             .createNotification(message, type)
             .notify(project)
     }

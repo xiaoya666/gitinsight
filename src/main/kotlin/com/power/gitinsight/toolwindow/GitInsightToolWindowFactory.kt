@@ -15,8 +15,12 @@ import com.intellij.ui.content.ContentFactory
  **/
 internal class GitInsightToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val panel = HotspotDashboardPanel(project)
-        val content = ContentFactory.getInstance().createContent(panel, "Hotspots", false)
-        toolWindow.contentManager.addContent(content)
+        val cf = ContentFactory.getInstance()
+        toolWindow.contentManager.addContent(
+            cf.createContent(HotspotDashboardPanel(project), "Hotspots", false)
+        )
+        toolWindow.contentManager.addContent(
+            cf.createContent(ActivityDashboardPanel(project), "Activity", false)
+        )
     }
 }

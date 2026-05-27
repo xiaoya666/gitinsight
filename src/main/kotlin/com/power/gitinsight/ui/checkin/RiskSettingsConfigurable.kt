@@ -46,6 +46,16 @@ internal class RiskSettingsConfigurable : Configurable {
         panel.add(leftAlign(JBLabel("勾选启用的提交风险规则。取消勾选的规则将不会被计入分值。")))
         panel.add(Box.createVerticalStrut(8))
         checkboxes.values.forEach { cb -> panel.add(leftAlign(cb)) }
+        panel.add(Box.createVerticalStrut(12))
+        panel.add(leftAlign(JBLabel(
+            "<html><i>Pro 用法：在项目根目录建 <code>.gitinsight/risk.yml</code> 即可按项目覆盖" +
+                "上面的开关 / 分值。格式：<br/>" +
+                "<code>rules:<br/>" +
+                "&nbsp;&nbsp;payment-touch:<br/>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;enabled: false<br/>" +
+                "&nbsp;&nbsp;hotspot-touch:<br/>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;delta: 25</code></i></html>"
+        )))
         reset()
         return panel
     }

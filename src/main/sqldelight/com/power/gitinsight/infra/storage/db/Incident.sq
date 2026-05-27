@@ -1,0 +1,40 @@
+-- GitInsight incident-commit registry. Populated by HotspotScanTask using IncidentClassifier
+-- on the commit subject; consumed by IncidentService (tooltip badge, future risk-engine rule).
+-- One row per (repo, commit). reason is one of REVERT/HOTFIX/ROLLBACK/MANUAL.
+
+CREATE TABLE incident_commit (
+  repo_id    TEXT NOT NULL,
+  commit_id  TEXT NOT NULL,
+  reason     TEXT NOT NULL,
+  subject    TEXT NOT NULL,
+  marked_at  INTEGER NOT NULL,
+  PRIMARY KEY (repo_id, commit_id)
+);
+
+CREATE INDEX incident_commit_by_marked ON incident_commit(marked_at);
+
+upsertIncident:
+INSERT INTO incident_commit(repo_id, commit_id, reason, subject, marked_at)
+VALUES (?, ?, ?, ?, ?)
+ON CONFLICT(repo_id, commit_id) DO UPDATE SET
+  reason    = excluded.reason,
+  subject   = excluded.subject,
+  marked_at = excluded.marked_at;
+
+selectIncident:
+SELECT reason, subject, marked_at
+FROM incident_commit
+WHERE repo_id = ? AND commit_id = ?;
+
+countIncidents:
+SELECT COUNT(*) FROM incident_commit WHERE repo_id = ?;
+
+selectRecentIncidents:
+SELECT commit_id, reason, subject, marked_at
+FROM incident_commit
+WHERE repo_id = ?
+ORDER BY marked_at DESC
+LIMIT ?;
+
+deleteOldIncidents:
+DELETE FROM incident_commit WHERE marked_at < ?;

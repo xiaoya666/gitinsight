@@ -11,6 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.Function
 import com.power.gitinsight.domain.blame.BlameLine
 import com.power.gitinsight.domain.blame.BlameService
+import com.power.gitinsight.domain.incident.IncidentService
 import java.util.function.Supplier
 
 /**
@@ -50,6 +51,16 @@ internal class BlameLineMarkerProvider : LineMarkerProvider {
         val byLine = snapshot.lines.associateBy { it.lineNumber }
         thisLogger().info("[GitInsight] snapshot has ${snapshot.lines.size} blame lines, head=${snapshot.headCommitId.take(8)}")
 
+        val incidentService = project.service<IncidentService>()
+        val incidentByCommit = HashMap<String, IncidentService.IncidentInfo>()
+        snapshot.lines.asSequence()
+            .map { it.commitId }
+            .distinct()
+            .forEach { commitId ->
+                val info = incidentService.findIncident(virtualFile, commitId)
+                if (info != null) incidentByCommit[commitId] = info
+            }
+
         val seen = HashSet<Int>(elements.size)
         var emitted = 0
         for (element in elements) {
@@ -63,15 +74,21 @@ internal class BlameLineMarkerProvider : LineMarkerProvider {
             if (!BlameMarkerStrategy.shouldEmit(line, byLine)) continue
 
             val blame = byLine[line] ?: continue
-            result.add(buildMarker(element, blame))
+            result.add(buildMarker(element, blame, incidentByCommit[blame.commitId]))
             emitted++
         }
         thisLogger().info("[GitInsight] emitted=$emitted markers for ${virtualFile.path}")
     }
 
-    private fun buildMarker(element: PsiElement, blame: BlameLine): LineMarkerInfo<PsiElement> {
-        val tooltipProvider = Function<PsiElement, String> { BlameTooltipRenderer.renderHtml(blame) }
-        val accessibleName = Supplier { "Commit Radar blame: ${blame.author}" }
+    private fun buildMarker(
+        element: PsiElement,
+        blame: BlameLine,
+        incident: IncidentService.IncidentInfo?
+    ): LineMarkerInfo<PsiElement> {
+        val tooltipProvider = Function<PsiElement, String> {
+            BlameTooltipRenderer.renderHtml(blame, incident = incident)
+        }
+        val accessibleName = Supplier { "GitInsight blame: ${blame.author}" }
         return LineMarkerInfo(
             element,
             element.textRange,

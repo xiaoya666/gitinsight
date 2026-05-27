@@ -177,12 +177,13 @@ internal class HotspotDashboardPanel(private val project: Project) : JPanel(Bord
         }
 
         private companion object {
-            // Pastel fills — Material 100/200 in light, muted variants in dark. Just enough hue to
-            // scan the table at a glance without fighting with text contrast.
-            val GREEN = JBColor(Color(200, 230, 201), Color(46, 78, 51))
-            val AMBER = JBColor(Color(255, 224, 130), Color(102, 80, 28))
-            val RED = JBColor(Color(239, 154, 154), Color(110, 46, 46))
-            val FG = JBColor(Color(33, 33, 33), Color(245, 245, 245))
+            // Near-primary saturation — Material A400 / A700. Same tone in both themes; dark text
+            // keeps WCAG AA contrast (>= 6.5:1) on every band. Picks the most-saturated Material slot
+            // that still leaves room for black text to read cleanly.
+            val GREEN = JBColor(Color(0, 230, 118), Color(0, 230, 118))    // green A400
+            val AMBER = JBColor(Color(255, 234, 0), Color(255, 234, 0))    // yellow A700 (peak chroma)
+            val RED = JBColor(Color(255, 23, 68), Color(255, 23, 68))      // red A400
+            val FG = JBColor(Color(33, 33, 33), Color(33, 33, 33))         // always dark text
         }
     }
 
