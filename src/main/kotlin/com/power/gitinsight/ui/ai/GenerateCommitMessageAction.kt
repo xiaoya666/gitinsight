@@ -14,9 +14,11 @@ import com.intellij.openapi.vcs.VcsDataKeys
 import com.intellij.openapi.vcs.changes.ChangeListManager
 import com.intellij.openapi.vcs.ui.CommitMessage
 import com.power.gitinsight.domain.ai.AiOptions
+import com.power.gitinsight.domain.ai.AiQuotaService
 import com.power.gitinsight.domain.ai.AiResult
 import com.power.gitinsight.domain.ai.AiSettings
 import com.power.gitinsight.domain.ai.CommitMessagePrompt
+import com.power.gitinsight.ui.license.UpgradePrompt
 
 /**
  * team : gitInsight.
@@ -55,12 +57,25 @@ internal class GenerateCommitMessageAction : AnAction(
 
                     indicator.text = "Calling AI provider..."
                     val provider = AiSettings.getInstance().activeProvider()
+                    // Only the bundled free fallback is metered. BYO-key providers are unlimited; Pro/Preview never exhaust.
+                    val metered = provider.id == "cf-workers-ai"
+                    if (metered && AiQuotaService.getInstance().fallbackQuotaExceeded()) {
+                        ApplicationManager.getApplication().invokeLater {
+                            if (project.isDisposed) return@invokeLater
+                            UpgradePrompt.show(project, "免费 AI Commit 今日额度已用完（${AiQuotaService.FREE_DAILY_LIMIT} 次/天）。")
+                        }
+                        return
+                    }
+
                     val result = provider.complete(messages, AiOptions(maxTokens = 512, temperature = 0.3))
 
                     ApplicationManager.getApplication().invokeLater {
                         if (project.isDisposed) return@invokeLater
                         when (result) {
-                            is AiResult.Success -> handleSuccess(project, commitMessageControl, result.text)
+                            is AiResult.Success -> {
+                                if (metered) AiQuotaService.getInstance().recordFallbackUse()
+                                handleSuccess(project, commitMessageControl, result.text)
+                            }
                             is AiResult.Error -> {
                                 thisLogger().info("[GitInsight] AI commit message failed: ${result.message}")
                                 notify(project, "GitInsight: ${result.message}", NotificationType.WARNING)

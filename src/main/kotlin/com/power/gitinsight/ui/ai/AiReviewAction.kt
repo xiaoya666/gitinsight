@@ -17,6 +17,8 @@ import com.power.gitinsight.domain.ai.AiOptions
 import com.power.gitinsight.domain.ai.AiResult
 import com.power.gitinsight.domain.ai.AiReviewPrompt
 import com.power.gitinsight.domain.ai.AiSettings
+import com.power.gitinsight.domain.license.LicenseSettings
+import com.power.gitinsight.ui.license.UpgradePrompt
 
 /**
  * team : gitInsight.
@@ -36,6 +38,11 @@ internal class AiReviewAction : AnAction(
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
+        // Pro gate (dormant during the 1.0.x preview window — unlocksProFeatures() is true for everyone).
+        if (!LicenseSettings.getInstance().unlocksProFeatures()) {
+            UpgradePrompt.show(project, "AI Diff Review 是 Pro 功能。")
+            return
+        }
         val changes = collectChanges(e, project)
         if (changes.isEmpty()) {
             notify(project, "GitInsight: 当前 changelist 为空，没有内容可审。", NotificationType.INFORMATION)

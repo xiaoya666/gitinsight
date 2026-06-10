@@ -15,11 +15,13 @@ internal enum class LicenseTier(val displayName: String) {
     FREE("Free"),
     PRO_PREVIEW("Pro Preview"),
     PRO("Pro"),
+    OSS("OSS"),          // verified open-source maintainer — treated as Pro (plan B-c)
+    ENTERPRISE("Enterprise"),
     ;
 
     fun unlocksProFeatures(): Boolean = when (this) {
         FREE -> PREVIEW_WINDOW_OPEN
-        PRO_PREVIEW, PRO -> true
+        PRO_PREVIEW, PRO, OSS, ENTERPRISE -> true
     }
 
     companion object {

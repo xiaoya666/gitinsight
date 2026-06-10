@@ -3,6 +3,7 @@ package com.power.gitinsight.domain.risk
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
+import com.power.gitinsight.domain.license.LicenseSettings
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
@@ -28,6 +29,8 @@ internal class RiskRulesProjectLoader(private val project: Project) {
     /** Snapshot the current overrides, re-reading the YAML if it changed since last call. */
     @Synchronized
     fun load(): RuleOverrides {
+        // YAML rule overrides are a Pro feature (dormant during the 1.0.x preview — unlocksProFeatures() is true for everyone).
+        if (!LicenseSettings.getInstance().unlocksProFeatures()) return RuleOverrides.EMPTY
         val base = project.basePath ?: return RuleOverrides.EMPTY
         val path = Path.of(base, RELATIVE_PATH)
 
