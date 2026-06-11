@@ -65,7 +65,14 @@ intellijPlatform {
 
     pluginVerification {
         ides {
-            recommended()
+            // recommended() resolves the IDEs JetBrains currently marks as recommended, which includes
+            // 2025.3 — not yet published to the repository, so the download fails. Pin the verifier to
+            // the compiled platform (guaranteed resolvable) so verifyPlugin runs reliably; bump/add
+            // newer versions here once they are available in the repository.
+            ide(
+                org.jetbrains.intellij.platform.gradle.IntelliJPlatformType.IntellijIdeaCommunity,
+                providers.gradleProperty("platformVersion").get(),
+            )
         }
     }
 
