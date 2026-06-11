@@ -56,7 +56,10 @@ intellijPlatform {
 
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            untilBuild = providers.gradleProperty("pluginUntilBuild")
+            // No upper bound: compatible with all IDEs from sinceBuild onwards, so a new major
+            // IDE release never auto-marks the plugin incompatible. `provider { null }` is the
+            // documented way to unset until-build (omitting it would default to MAJOR.*).
+            untilBuild = provider { null }
         }
     }
 
