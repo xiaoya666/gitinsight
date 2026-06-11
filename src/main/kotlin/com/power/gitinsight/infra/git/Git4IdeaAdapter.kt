@@ -37,32 +37,30 @@ internal class Git4IdeaAdapter : GitAdapter {
             return null
         }
 
-        return try {
-            val revisionByNumber = annotation.revisions
-                .orEmpty()
-                .associateBy { it.revisionNumber }
+        // No annotation.dispose(): FileAnnotation#dispose() is deprecated and a no-op on the platform
+        // (FileAnnotation no longer implements Disposable), so there is nothing to release here.
+        val revisionByNumber = annotation.revisions
+            .orEmpty()
+            .associateBy { it.revisionNumber }
 
-            val lines = (0 until annotation.lineCount).mapNotNull { idx ->
-                val rev = annotation.getLineRevisionNumber(idx) ?: return@mapNotNull null
-                val fileRev = revisionByNumber[rev]
-                BlameLine(
-                    lineNumber = idx + 1,
-                    commitId = rev.asString(),
-                    author = fileRev?.author.orEmpty(),
-                    authorEmail = null, // platform API does not expose email; enrich later via git log
-                    timestamp = fileRev?.revisionDate?.time ?: 0L,
-                    summary = fileRev?.commitMessage?.lineSequence()?.firstOrNull().orEmpty()
-                )
-            }
-
-            BlameSnapshot(
-                filePath = file.path,
-                headCommitId = annotation.currentRevision?.asString().orEmpty(),
-                lines = lines
+        val lines = (0 until annotation.lineCount).mapNotNull { idx ->
+            val rev = annotation.getLineRevisionNumber(idx) ?: return@mapNotNull null
+            val fileRev = revisionByNumber[rev]
+            BlameLine(
+                lineNumber = idx + 1,
+                commitId = rev.asString(),
+                author = fileRev?.author.orEmpty(),
+                authorEmail = null, // platform API does not expose email; enrich later via git log
+                timestamp = fileRev?.revisionDate?.time ?: 0L,
+                summary = fileRev?.commitMessage?.lineSequence()?.firstOrNull().orEmpty()
             )
-        } finally {
-            annotation.dispose()
         }
+
+        return BlameSnapshot(
+            filePath = file.path,
+            headCommitId = annotation.currentRevision?.asString().orEmpty(),
+            lines = lines
+        )
     }
 
     override fun scanRepoHistory(
