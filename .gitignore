@@ -45,3 +45,7 @@ bin/
 
 ### Claude Code ###
 .claude/
+
+### Secrets — never commit a Marketplace token ###
+.gitinsight-publish-token
+*publish-token*
