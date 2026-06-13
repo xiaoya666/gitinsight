@@ -3,6 +3,17 @@
     <name>GitInsight</name>
     <vendor email="xiaoya666@users.noreply.github.com" url="https://github.com/xiaoya666/gitinsight">fangyajun</vendor>
 
+    <!--
+      Paid/freemium descriptor for the 1.1.x Pro launch. KEEP COMMENTED while 1.0.x ships free:
+      enabling it flips the plugin to a paid listing and the `code` MUST first be reserved in the
+      JetBrains Marketplace "Licensing"/pricing section, or publishing is rejected.
+      optional="true" = freemium (plugin installs free; only Pro features need a license).
+      release-version is an integer (e.g. 11 for 1.1.0); release-date is yyyyMMdd.
+    -->
+    <!--
+    <product-descriptor code="PGITINSIGHT" release-date="20260613" release-version="11" optional="true"/>
+    -->
+
     <description><![CDATA[
         <h2>GitInsight — Git change-risk dashboard for IntelliJ IDEs</h2>
         <p>Not just <code>git blame</code>, but <code>git insight</code>. GitInsight surfaces what plain Git can't: how risky your change really is, who else has been burned by this file, and which lines have a history of incidents.</p>
